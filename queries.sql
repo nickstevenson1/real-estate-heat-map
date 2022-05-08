@@ -33,7 +33,7 @@ GROUP BY n.name, extract(year FROM reception_date)
 ORDER BY n.name, extract(year FROM reception_date);
 
 
--- Query that returns the average price group of each neighborhood over
+-- Query that returns the average price growth of each neighborhood over
 -- all years. This query is used in our map visualization.
 SELECT c.name, avg(price_growth) AS avg_price_growth FROM
     (SELECT n.name AS name, 
@@ -50,6 +50,21 @@ SELECT c.name, avg(price_growth) AS avg_price_growth FROM
 WHERE c.price_growth < 10
 GROUP BY c.name;
 
+-- Returns the avg price of each residential neighborhood, sorted from most expensive
+-- to least expensive
+SELECT n.name, avg(sale_price) AS avg_price FROM property
+    JOIN neighborhood n ON n.number = nbhd_1
+    JOIN d_class d ON d.id = d_class
+    WHERE extract(year FROM reception_date) > 2010 and d.name LIKE 'RESIDENTIAL%'
+    GROUP BY n.name
+    ORDER BY avg_price desc;
+
+-- Returns the avg price of each airbnb by neighborhood, sorted from most
+-- expensive to least expensive. 
+SELECT neighborhood AS name, avg(cast(price AS numeric)) AS avg_price 
+    FROM airbnb
+    GROUP BY neighborhood
+    ORDER BY avg_price desc;
 
 -- Query that returns the correlation between airbnb price and residential properties
 -- by neighborhood.
@@ -59,9 +74,9 @@ SELECT corr("a_price", "p_price") FROM
         (SELECT n.name, avg(sale_price) AS avg_price FROM property
             JOIN neighborhood n ON n.number = nbhd_1
             JOIN d_class d ON d.id = d_class
-        WHERE extract(year FROM reception_date) > 2010 and d.name LIKE 'RESIDENTIAL%'
-        GROUP BY n.name) AS avg_prop_price,
-        (SELECT neighborhood AS name, avg(cast(price AS numeric)) AS avg_price 
-            FROM airbnb
+            WHERE extract(year FROM reception_date) > 2010 and d.name LIKE 'RESIDENTIAL%'
+            GROUP BY n.name) AS avg_prop_price,
+    (SELECT neighborhood AS name, avg(cast(price AS numeric)) AS avg_price 
+        FROM airbnb
         GROUP BY neighborhood) AS airbnb_avg_price
     WHERE UPPER(avg_prop_price.name) = UPPER(airbnb_avg_price.name)) AS prices;

@@ -68,14 +68,17 @@ for i, row in gdf.iterrows():
             icon = folium.Icon(color='red', icon='apartment')
         ).add_to(m)
 
-# airbnb_data = pd.read_csv('data/airbnb_data.csv')
+m.save("neighborhood_map.html")
+webbrowser.open("neighborhood_map.html")
 
-# for i, row in airbnb_data.iterrows():
-#     folium.Marker(
-#         location = [row['latitude'], row['longitude']],
-#         popup = folium.Popup('<b>'+str(row['price']) + '</b>', show=False),
-#         icon = folium.Icon(color='red', icon='info_sign')
-#     ).add_to(m)
+airbnb_data = pd.read_csv('data/airbnb_data.csv')
 
-m.save("map.html")
-webbrowser.open("map.html")
+for i, row in airbnb_data.iterrows():
+    folium.Marker(
+        location = [row['latitude'], row['longitude']],
+        popup = folium.Popup('<b>'+str(row['price']) + '</b>', show=False),
+        icon = folium.Icon(color='red', icon='info_sign')
+    ).add_to(m)
+
+m.save("airbnb_map.html")
+webbrowser.open("airbnb_map.html")
